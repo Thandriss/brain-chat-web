@@ -4,6 +4,8 @@ import * as api from "./api";
 
 const initialState = {
   user: undefined,
+  chats: [],
+  createdChat: "",
   isAuth: false,
   isLoading: false,
   userRegistr: {
@@ -20,6 +22,16 @@ export const register = createAsyncThunk("register", async (data) => api.registe
 export const login = createAsyncThunk("login", async (data) => api.login(data));
 
 export const confirm = createAsyncThunk("confirm", async (data) => api.confirm(data));
+
+export const create = createAsyncThunk("create", async (data) => api.create(data));
+
+export const join = createAsyncThunk("join", async (data) => api.join(data));
+
+export const send = createAsyncThunk("send", async (data) => api.send(data));
+
+export const getAllChats = createAsyncThunk("getAllChats", async () => api.getAllChats());
+
+export const bind = createAsyncThunk("bind", async (data) => api.bind(data));
 
 const slice = createSlice({
     name: "slice",
@@ -77,25 +89,46 @@ const slice = createSlice({
           state.isLoading = true;
           state.errorMessage = "";
         })
-        
-  
-        // .addCase(update.rejected, (state, action) => {
-        //   state.errorMessage = action.error.message;
-        //   state.isLoading = false;
-        // })
-        // .addCase(update.pending, (state) => {
-        //   state.isLoading = true;
-        //   state.errorMessage = "";
-        // })
-        // .addCase(update.fulfilled, (state, action) => {
-        //   state.isLoading = false;
-        //   if (action.payload.message) {
-        //     state.errorExistMessage = action.payload.message;
-        //   } else {
-        //     state.user = action.payload;
-        //     state.errorExistMessage = "";
-        //   }
-        // })
+        .addCase(bind.fulfilled, (state, action) => {
+          // console.log("bind");
+        })
+        .addCase(bind.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(bind.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(getAllChats.fulfilled, (state, action) => {
+          state.chats = action.payload;
+        })
+        .addCase(getAllChats.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(getAllChats.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(send.fulfilled, (state, action) => {
+          console.log("sent");
+        })
+        .addCase(send.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(send.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(create.fulfilled, (state, action) => {
+          state.createdChat = action.payload;
+        })
+        .addCase(create.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(create.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
         .addCase(confirm.pending, (state) => {
           state.isLoading = true;
         })
@@ -128,6 +161,33 @@ const slice = createSlice({
             phoneNumber: "",
           };
         })
+        .addCase(join.fulfilled, (state, action) => {
+          state.chats.push(action.payload);
+        })
+        .addCase(join.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(join.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        // .addCase(update.rejected, (state, action) => {
+        //   state.errorMessage = action.error.message;
+        //   state.isLoading = false;
+        // })
+        // .addCase(update.pending, (state) => {
+        //   state.isLoading = true;
+        //   state.errorMessage = "";
+        // })
+        // .addCase(update.fulfilled, (state, action) => {
+        //   state.isLoading = false;
+        //   if (action.payload.message) {
+        //     state.errorExistMessage = action.payload.message;
+        //   } else {
+        //     state.user = action.payload;
+        //     state.errorExistMessage = "";
+        //   }
+        // })
         // .addCase(loadNewAccessToken.rejected, (state) => {
         //   Cookies.remove("accessToken");
         //   Cookies.remove("refreshToken");

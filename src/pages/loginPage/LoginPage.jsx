@@ -17,6 +17,8 @@ function LoginPage() {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [message, setMessage] = useState("")
+  const nav = useNavigate();
+
 
   const handleChangeEmail = (event) => {
     setEmail(event.target.value);
@@ -30,8 +32,10 @@ function LoginPage() {
   
   const handleChangePassword = (event) => {
     setPassword(event.target.value);
-    const isValidPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(event.target.value);
-    setPasswordError(!isValidPassword);
+    // const isValidPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(event.target.value);
+    // console.log("here")
+    // console.log(isValidPassword)
+    // setPasswordError(!isValidPassword);
   };
 
   const loggin = async () => {
@@ -43,55 +47,31 @@ function LoginPage() {
         password,
       })
     );
+    if (login.fulfilled.match(dispatchResult)) {
+      nav("/list");
+      setEmail("");
+      setPassword("");
+    }
   }
 
   const handleState = () => {
-    if (passwordError && password != null && message !== "") {
-        setMessage("Wrong password format or it mismatchs with confirmation password")
+    if (passwordError || password === null || password === "") {
+        setMessage("Wrong password format")
         setChanges(false)
-    } else if (emailError && email != null && message !== "") {
+    } else if (emailError || email === null || email === "") {
         setMessage("Wrong email format")
         setChanges(false)
     }  else {
         setMessage("")
         setChanges(true)
     }
-}
-
-const validatePassword = () => {
-
-  const hasLowerCaseLetters = /[a-z]/gu.test(password);
-  if (!hasLowerCaseLetters) setMessage("Password has no lower case letters")
-
-  const hasUpperCaseLetters = /[A-Z]/gu.test(password);
-  if (!hasUpperCaseLetters) setMessage("Password has no upper case letters")
-
-  const hasNumbers = /[0-9]/g.test(password);
-  if (!hasNumbers) setMessage("Password has no numbers")
-
-  const hasSpecialCharacters = /[@#$%^&+=!]/g.test(password);
-  if (!hasSpecialCharacters) setMessage("Password has no special characters")
-
-  const hasMinimumLength = password.length >= 8;
-  if (!hasMinimumLength) setMessage("Password is less then 8 characters")
-
-  return {
-    hasLowerCaseLetters,
-    hasUpperCaseLetters,
-    hasNumbers,
-    hasSpecialCharacters,
-    hasMinimumLength,
-  };
-};
+  }
 
   useEffect (() => {
     handleState();
-    if (password != null) {
-        validatePassword()
-    }
   }, [password, email])
 
-
+  console.log(hasChanges)
   return (
     <div>
         <section>
@@ -122,8 +102,10 @@ const validatePassword = () => {
                 </div>
             </div>
             <div className={styles.submit_container}>
+
                 <div className={ `${styles.submitBtn} ${hasChanges ? styles.active : styles.notActive}`} onClick={() => loggin()}>Log in</div>
             </div>
+            <div>{message}</div>
           </div>
         </div>
           <div className={`${styles.wave} ${styles.wave1}`}></div>

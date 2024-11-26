@@ -37,9 +37,8 @@ function ConfirmPage() {
             );
             if (confirm.fulfilled.match(dispatchResult)) {
                 setCode("");
-                nav("/page");
-              }
-
+                nav("/list");
+            }
         }
     }
     

@@ -26,19 +26,34 @@ function SignUp() {
     const validatePassword = () => {
 
         const hasLowerCaseLetters = /[a-z]/gu.test(password);
-        if (!hasLowerCaseLetters) setMessage("Password has no lower case letters")
+        if (!hasLowerCaseLetters){
+          setMessage("Password has no lower case letters")
+          setStateReg(false);
+        } 
 
         const hasUpperCaseLetters = /[A-Z]/gu.test(password);
-        if (!hasUpperCaseLetters) setMessage("Password has no upper case letters")
+        if (!hasUpperCaseLetters) {
+          setMessage("Password has no upper case letters")
+          setStateReg(false);
+        } 
 
         const hasNumbers = /[0-9]/g.test(password);
-        if (!hasNumbers) setMessage("Password has no numbers")
+        if (!hasNumbers) {
+          setMessage("Password has no numbers");
+          setStateReg(false);
+        }
 
         const hasSpecialCharacters = /[@#$%^&+=!]/g.test(password);
-        if (!hasSpecialCharacters) setMessage("Password has no special characters")
-
+        if (!hasSpecialCharacters) {
+          setMessage("Password has no special characters")
+          setStateReg(false);
+        }
+        
         const hasMinimumLength = password.length >= 8;
-        if (!hasMinimumLength) setMessage("Password is less then 8 characters")
+        if (!hasMinimumLength) {
+          setMessage("Password is less then 8 characters")
+          setStateReg(false);
+        }
     
         return {
           hasLowerCaseLetters,
@@ -105,6 +120,8 @@ function SignUp() {
         const passwordValue = e.target.value;
         setPassword(passwordValue);
         const isValidPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(passwordValue);
+        console.log("here")
+        console.log(isValidPassword)
         setPasswordError(!isValidPassword);
   };
     
