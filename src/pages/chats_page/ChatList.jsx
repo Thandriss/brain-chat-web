@@ -3,26 +3,57 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from "./chatList.module.css";
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { selectUserChats, selectUserCreated } from "../../service/selectors";
+import { selectUserChats, selectUserCreated} from "../../service/selectors";
 import { useDispatch, useSelector } from "react-redux";
 import { bind, create, getAllChats, join } from '../../service/slice';
 
 function ChatList() {
-    const lis = [{chatName: "Best of the best"}, {chatName: "Lohi"}]
+    const modes = [ "brainstorming", "6 thinking hat", "SCAMPER", "none" ];
     const list = useSelector(selectUserChats);
     const dispatch = useDispatch();
     const [openWindow, setOpenWindow] = useState(false);
     const [chatName, setChatName] = useState(null);
+    const [topic, setTopic] = useState(null);
     const accessCode = useSelector(selectUserCreated);
     const [showAccessCode, setShowAccess] = useState(false)
     const navigate = useNavigate();
     const [joinWindow, setJoinWindow] = useState(false);
     const [accessCodeIn, setAccessCodeIn] = useState(null);
-    
+    const [selectedValues, setSelectedValues] = useState("none");
+    const [prompt, setPrompt] = useState("");
+    const [time, setTime] = useState('');
+    const [number, setNumber] = useState('');
+
+    console.log(time)
+
+    const handleCheckboxChange = (value) => {
+      setSelectedValues(value);
+    };
+
+    const handleTime = (e) => {
+      setTime(e.target.value);
+    };
+
+    const handleNumber = (e) => {
+      const numericValue = e.target.value.replace(/[^0-9]/g, '');
+      setNumber(numericValue);
+    };
+
     const handleChange = (e) => {
       const name = e.target.value;
       setChatName(name);
     };
+
+    const handleTopic = (e) => {
+      const topicIn = e.target.value;
+      setTopic(topicIn);
+    };
+
+    const handlePrompt = (e) => {
+      const promptIn = e.target.value;
+      setPrompt(promptIn);
+    };
+
     const handleChangeJoin = (e) => {
       const access = e.target.value;
       setAccessCodeIn(access);
@@ -54,7 +85,7 @@ function ChatList() {
   
     const handleGoInChat = (chatAccessCode, chatId, cchatName) => {
       dispatch(bind(chatAccessCode))
-      navigate('/chat/' + chatId + "_" + cchatName); 
+      navigate('/chat/' + chatAccessCode + "_" + cchatName); 
     };
 
     const handleCreate = async () => {
@@ -63,6 +94,9 @@ function ChatList() {
       if (create.fulfilled.match(dispatchResult)) {
         setOpenWindow(false)
         setShowAccess(true)
+        setChatName(null)
+        setTopic(null)
+
       }
     }
 
@@ -91,6 +125,44 @@ function ChatList() {
               <h1>Chat creation</h1>
               <div className={styles.auth_input}>
                   <input className={styles.in}  type={"text"} required placeholder='Chat name' onChange={handleChange} value={chatName}></input>
+                  <div className={styles.combine}>
+                    <div className={styles.textBold}>Topic for discussion</div>
+                    <input className={styles.in}  type={"text"} required placeholder='Question' onChange={handleTopic} value={topic}></input>
+                  </div>
+                  <div className={styles.combine}>
+                    <div className={styles.textBold}>Mode of chat</div>
+                    <div className={styles.options}>
+                    {modes.map((option, index) => {
+                      return (
+                        <label key={index}>
+                          <input
+                          type="radio"
+                          value={option}
+                          onChange={() => handleCheckboxChange(option)}
+                          checked={selectedValues === option}
+                          />
+                          {option}
+                        </label>
+                      )
+                    })}
+                    </div>
+                  </div>
+                  <div className={styles.combine}>
+                    <div className={styles.textBold}>AI setting</div>
+                    <input className={styles.in}  type={"text"} required placeholder='Prompt' onChange={handlePrompt} value={prompt}></input>
+                  </div>
+                  <div className={styles.combine}>
+                  <div className={styles.textBold}>Chat Session Time (mm/ss, 24h):</div>
+                    <input
+                    type="time"
+                    value={time}
+                    onChange={handleTime}
+                    />
+                  </div>
+                  <div className={styles.combine}>
+                    <div className={styles.textBold}>Number of participants</div>
+                    <input className={styles.in}  type={"text"} required placeholder="Only numbers" onChange={handleNumber} value={number}></input>
+                  </div>
               </div>
               <div className={styles.btnContainer}> 
                 <div className={styles.btnCancel} onClick={() => setOpenWindow(!openWindow)}>Cancel</div>

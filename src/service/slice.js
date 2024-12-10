@@ -8,6 +8,7 @@ const initialState = {
   createdChat: "",
   isAuth: false,
   isLoading: false,
+  currentMessages: [],
   userRegistr: {
     name: "",
     email: "",
@@ -32,6 +33,8 @@ export const send = createAsyncThunk("send", async (data) => api.send(data));
 export const getAllChats = createAsyncThunk("getAllChats", async () => api.getAllChats());
 
 export const bind = createAsyncThunk("bind", async (data) => api.bind(data));
+
+export const getMessages = createAsyncThunk("getAllMessages", async (data) => api.getAllMessages(data));
 
 const slice = createSlice({
     name: "slice",
@@ -158,7 +161,6 @@ const slice = createSlice({
           state.userRegistr = {
             fullName: "",
             email: "",
-            phoneNumber: "",
           };
         })
         .addCase(join.fulfilled, (state, action) => {
@@ -170,6 +172,17 @@ const slice = createSlice({
         .addCase(join.rejected, (state) => {
           state.error = true;
           state.isLoading = false;
+        })
+        .addCase(getMessages.fulfilled, (state, action) => {
+          state.currentMessages = action.payload;
+        })
+        .addCase(getMessages.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(getMessages.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+          state.currentMessages = [];
         })
         // .addCase(update.rejected, (state, action) => {
         //   state.errorMessage = action.error.message;

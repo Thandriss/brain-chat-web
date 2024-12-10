@@ -65,3 +65,11 @@ export async function getAllChats() {
   }
   return res.data;
 }
+
+export async function getAllMessages(accessCode) {
+  const res = await axiosWithAuth.get("/api/groups/getMessages/" + accessCode);
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}

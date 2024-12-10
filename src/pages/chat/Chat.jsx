@@ -3,56 +3,122 @@ import styles from "./chat.module.css"
 import SockJS from "sockjs-client"
 import { Stomp, Client } from "@stomp/stompjs"
 import SendIcon from '@mui/icons-material/Send';
+import { useLocation } from 'react-router-dom';
+import { selectCurrentMessages, selectUser } from "../../service/selectors";
+import { useDispatch,useSelector } from "react-redux";
+import { getMessages } from '../../service/slice';
 
 function Chat() {
-    const [messages, setMess] = useState([{name: "Iana", text: "blablabla"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1blablabla1blablabla1blablabla1blablabla1blablabla1blablabla1blablabla1vvvblablabla1blablabla1blablabla1blablabla1blablabla1blablabla1"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1"}, {name: "Iana1", text: "blablabla1"}])
-    // const [client, setStompClient] = useState(null);
-    let client = null;
+  const [messages, setMess] = useState([]);
+  const [client, setStompClient] = useState(null);
+  const [accessCode, setAccessCode] = useState(null);
+  const [chatName, setChatName] = useState(null);
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+  
+    // let client = null;
+  console.log(user)
+  const location = useLocation()
+  // console.log(location.path)
+    
     
   const handleKeyPress = async (event) => { 
     if(event.key === 'Enter'){
       let mess = document.getElementById("message").value
-      if (client && client.connected) {
+      if (client && client.active) {
         client.publish({
           destination: "/app/send",
-          body: JSON.stringify(mess),
-        });
-        // setMessage("");
+          body: JSON.stringify({
+              message: mess,
+              chatName: accessCode,
+              id: user.id,
+              name: user.name,
+          }),
+      });
+        document.getElementById("message").value = ""
       }
-      document.getElementById("message").value = ""
-      console.log(mess); 
     }
   }
 
-  const socketUrl = "http://localhost:5555/ws";
+  const socketUrl = "http://localhost:5555/ws/info";
 
-
+  
 
   useEffect(() => {
-    client = new Client({
-      brokerURL: "ws://localhost:5555/ws",
-      webSocketFactory: () => new SockJS("http://localhost:5555/ws"),
-      onConnect: () => {
-        console.log("Connected");
-        client.subscribe("/topic/messages", (msg) => {
-          setMess((prev) => [...prev, JSON.parse(msg.body)]);
-        });
-      },
-      onDisconnect: () => console.log("Disconnected"),
+    console.log("Initializing WebSocket connection...");
+    let str = location.pathname;
+    const parts = str.split('/')[2].split('_');
+    const part1 = parts[0]; 
+    const part2 = parts[1];
+    setAccessCode(part1);
+    setChatName(part2);
+
+    const stompClient = new Client({
+        webSocketFactory: () => new SockJS(socketUrl), 
+        reconnectDelay: 5000, 
+        debug: (msg) => console.log("STOMP Debug Message:", msg),
     });
 
-    client.activate();
-    return () => client.deactivate();
+    stompClient.onConnect = () => {
+        console.log("Connected to WebSocket");
+
+        stompClient.subscribe("/queue/user_1_group_" + part1, (message) => {
+          // /topic/group-messages
+            console.log("Full message received:", message);
+            console.log("Message body:", message.body);
+            try {
+              const parsedMessage = JSON.parse(message.body);
+              const { name, content } = parsedMessage;
+              setMess((prev) => [...prev, { name, text: content }]);
+            } catch (error) {
+                console.error("Error parsing message body:", error);
+            }
+        });
+    };
+
+    stompClient.onStompError = (frame) => {
+        console.error("Broker reported error:", frame.headers["message"]);
+        console.error("Additional details:", frame.body);
+    };
+
+    stompClient.activate(); 
+
+    setStompClient(stompClient);
+
+    return () => {
+        if (stompClient.active) {
+            stompClient.deactivate();
+            console.log("Disconnected from WebSocket");
+        }
+    };
   }, []);
+
+  const handleGettingMessages = async () => {
+    const dispatchResult = await dispatch(getMessages(accessCode));
+    if (getMessages.fulfilled.match(dispatchResult)) {
+      setMess(dispatchResult.payload)
+    }
+  }
+
+  useEffect(() => {
+    if (accessCode != null) {
+      handleGettingMessages();
+    }
+    
+  }, [accessCode])
 
   const sendMessage = () => {
     let mess = document.getElementById("message").value
-      if (client && client.connected) {
-        client.publish({
-          destination: "/app/send",
-          body: JSON.stringify(mess),
-        });
-        // setMessage("");
+    if (client && client.active) {
+      client.publish({
+        destination: "/app/send",
+        body: JSON.stringify({
+            message: mess,
+            chatName: accessCode,
+            id: user.id,
+            name: user.name,
+        }),
+    });
       }
       document.getElementById("message").value = ""
       console.log(mess);
@@ -63,7 +129,7 @@ function Chat() {
   return (
     <div>
         <div className={styles.main_cont}>
-            <h2 className={styles.chatHeader}>Chat Name</h2>
+            <h2 className={styles.chatHeader}>{chatName}</h2>
             <div className={styles.message_cont}>
                 {messages.map((mess)=> 
                 <div className={styles.mess_box}>

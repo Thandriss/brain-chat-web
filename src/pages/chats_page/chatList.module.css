@@ -75,11 +75,16 @@
 
 .btnContainer {
     display: flex;
-    position: relative;
+    /* position: relative; */
     justify-content: center; 
     align-items: center;
-    top: 80%;
+    /* top: 80%; */
     gap: 20px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin-bottom: 10px;
 }
 
 .btnCancel {
@@ -131,8 +136,28 @@
     align-items: center;
     width: 100%;
     max-width: 100%;
+    flex-direction: column;
 }
 
+.options{
+    display: flex;
+    gap: 10px
+}
+
+.textBold{
+    font-weight: bold;
+}
+
+.combine {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    margin-top: 10px; 
+    align-items: center;
+    font-size: 19px;
+}
 
 .in {
     height: 50px;
