@@ -4,22 +4,33 @@ import SockJS from "sockjs-client"
 import { Stomp, Client } from "@stomp/stompjs"
 import SendIcon from '@mui/icons-material/Send';
 import { useLocation } from 'react-router-dom';
-import { selectCurrentMessages, selectUser } from "../../service/selectors";
-import { useDispatch,useSelector } from "react-redux";
-import { getMessages } from '../../service/slice';
+import { selectCurrentMessages, selectUser, selectCurrentChat } from "../../service/selectors";
+import { useDispatch, useSelector } from "react-redux";
+import { getChat, getMessages, getBindings } from '../../service/slice';
+import Timer from '../../components/timer/Timer';
 
 function Chat() {
   const [messages, setMess] = useState([]);
   const [client, setStompClient] = useState(null);
   const [accessCode, setAccessCode] = useState(null);
   const [chatName, setChatName] = useState(null);
+  const [bindingsCount, setBindingsCount] = useState(null);
+  const targetBindings = 5;
   const user = useSelector(selectUser);
+  const chat = useSelector(selectCurrentChat);
   const dispatch = useDispatch();
-  
-    // let client = null;
-  console.log(user)
+  const [isTimerExpired, setIsTimerExpired] = useState(false);
+  const [isTracking, setIsTracking] = useState(true);
+  console.log(chat)
   const location = useLocation()
-  // console.log(location.path)
+  const [startTimer, setStartTimer] = useState(false);
+
+  console.log(user)
+
+  const handleExpire = () => {
+    console.log('Timer expired!');
+    setIsTimerExpired(true); 
+  };
     
     
   const handleKeyPress = async (event) => { 
@@ -42,8 +53,6 @@ function Chat() {
 
   const socketUrl = "http://localhost:5555/ws/info";
 
-  
-
   useEffect(() => {
     console.log("Initializing WebSocket connection...");
     let str = location.pathname;
@@ -63,7 +72,6 @@ function Chat() {
         console.log("Connected to WebSocket");
 
         stompClient.subscribe("/queue/user_1_group_" + part1, (message) => {
-          // /topic/group-messages
             console.log("Full message received:", message);
             console.log("Message body:", message.body);
             try {
@@ -126,8 +134,34 @@ function Chat() {
 
 
 
+  useEffect(() => {
+    if (isTracking) {
+      const interval = setInterval(async () => {
+        try {
+          const dispatchResult = await dispatch(getBindings(accessCode));
+          if (getBindings.fulfilled.match(dispatchResult)) {
+            const data = await dispatchResult.json();
+            setBindingsCount(data.bindingsNumber);
+            if (data.bindingsNumber === targetBindings) {
+              clearInterval(interval);
+              console.log("Target bindings reached!");
+              setStartTimer(true)
+              setIsTracking(false)
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching bindings:", error);
+        }
+      }, 3000);
+
+      return () => clearInterval(interval); 
+    }
+  }, [isTracking]);
+
+
   return (
     <div>
+      {chat? <Timer time={chat.time} onExpire={handleExpire} startTimer={startTimer}/> : <Timer time = {"00:00"} onExpire={handleExpire} startTimer={startTimer}/>}
         <div className={styles.main_cont}>
             <h2 className={styles.chatHeader}>{chatName}</h2>
             <div className={styles.message_cont}>

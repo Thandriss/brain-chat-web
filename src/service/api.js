@@ -26,8 +26,8 @@ export async function confirm(confirm) {
   return res.data;
 }
 
-export async function create(chatName) {
-  const res = await axiosWithAuth.post("/api/groups/create", JSON.stringify(chatName));
+export async function create(create) {
+  const res = await axiosWithAuth.post("/api/groups/create", JSON.stringify(create));
   if (res.status !== 200) {
     throw res.data;
   }
@@ -68,6 +68,23 @@ export async function getAllChats() {
 
 export async function getAllMessages(accessCode) {
   const res = await axiosWithAuth.get("/api/groups/getMessages/" + accessCode);
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}
+
+export async function getBindings(accessCode) {
+  const res = await axiosWithAuth.get("/api/groups/count/" + accessCode);
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}
+
+export async function getChat(data) {
+  console.log(JSON.stringify(data))
+  const res = await axiosWithAuth.post("/api/groups/getChatData", JSON.stringify(data));
   if (res.status !== 200) {
     throw res.data;
   }

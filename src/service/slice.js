@@ -16,6 +16,7 @@ const initialState = {
   error: false,
   errorMessage: "",
   errorExistMessage: "",
+  currentChat: undefined,
 };
   
 export const register = createAsyncThunk("register", async (data) => api.register(data));
@@ -29,6 +30,10 @@ export const create = createAsyncThunk("create", async (data) => api.create(data
 export const join = createAsyncThunk("join", async (data) => api.join(data));
 
 export const send = createAsyncThunk("send", async (data) => api.send(data));
+
+export const getChat = createAsyncThunk("getChat", async (data) => api.getChat(data));
+
+export const getBindings = createAsyncThunk("getBindings", async (data) => api.getBindings(data));
 
 export const getAllChats = createAsyncThunk("getAllChats", async () => api.getAllChats());
 
@@ -94,11 +99,23 @@ const slice = createSlice({
         })
         .addCase(bind.fulfilled, (state, action) => {
           // console.log("bind");
+          state.isLoading = false;
         })
         .addCase(bind.pending, (state) => {
           state.isLoading = true;
         })
         .addCase(bind.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(getChat.fulfilled, (state, action) => {
+          state.currentChat = action.payload;
+          state.isLoading = false;
+        })
+        .addCase(getChat.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(getChat.rejected, (state) => {
           state.error = true;
           state.isLoading = false;
         })
@@ -180,6 +197,17 @@ const slice = createSlice({
           state.isLoading = true;
         })
         .addCase(getMessages.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+          state.currentMessages = [];
+        })
+        .addCase(getBindings.fulfilled, (state, action) => {
+          // state.currentMessages = action.payload;
+        })
+        .addCase(getBindings.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(getBindings.rejected, (state) => {
           state.error = true;
           state.isLoading = false;
           state.currentMessages = [];

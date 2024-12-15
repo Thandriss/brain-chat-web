@@ -5,7 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { selectUserChats, selectUserCreated} from "../../service/selectors";
 import { useDispatch, useSelector } from "react-redux";
-import { bind, create, getAllChats, join } from '../../service/slice';
+import { bind, create, getAllChats, join, getChat } from '../../service/slice';
 
 function ChatList() {
     const modes = [ "brainstorming", "6 thinking hat", "SCAMPER", "none" ];
@@ -22,16 +22,29 @@ function ChatList() {
     const [selectedValues, setSelectedValues] = useState("none");
     const [prompt, setPrompt] = useState("");
     const [time, setTime] = useState('');
-    const [number, setNumber] = useState('');
+    const [numberParticipants, setNumber] = useState('');
+    const [aiName, setAiName] = useState("");
+    const [minutes, setMinutes] = useState('00');
+    const [seconds, setSeconds] = useState('00');
 
-    console.log(time)
+    const handleMinutesChange = (e) => {
+      const value = Math.max(0, Math.min(59, parseInt(e.target.value) || 0)); 
+      setMinutes(value.toString().padStart(2, '0')); 
+      const formattedTime = `${minutes}:${seconds}`;
+      setTime(formattedTime)
+    };
+
+    const handleSecondsChange = (e) => {
+      const value = Math.max(0, Math.min(59, parseInt(e.target.value) || 0)); 
+      setSeconds(value.toString().padStart(2, '0'));
+      const formattedTime = `${minutes}:${seconds}`; 
+      // const formattedTime = `${minutes}:${seconds}`;
+      setTime(formattedTime)
+    };
+    const formattedTime = `${minutes}:${seconds}`;
 
     const handleCheckboxChange = (value) => {
       setSelectedValues(value);
-    };
-
-    const handleTime = (e) => {
-      setTime(e.target.value);
     };
 
     const handleNumber = (e) => {
@@ -52,6 +65,11 @@ function ChatList() {
     const handlePrompt = (e) => {
       const promptIn = e.target.value;
       setPrompt(promptIn);
+    };
+
+    const handleAiName = (e) => {
+      const aiNameIn = e.target.value;
+      setAiName(aiNameIn);
     };
 
     const handleChangeJoin = (e) => {
@@ -83,20 +101,31 @@ function ChatList() {
         });
     };
   
-    const handleGoInChat = (chatAccessCode, chatId, cchatName) => {
-      dispatch(bind(chatAccessCode))
-      navigate('/chat/' + chatAccessCode + "_" + cchatName); 
+    const handleGoInChat = async (chatAccessCode, chatId, cchatName) => {
+      let initialSettings = {
+        chatId
+      };
+      await dispatch(getChat(initialSettings))
+      await dispatch(bind(chatAccessCode))
+      navigate('/chat/' + chatAccessCode + "_" + cchatName + "_" + chatId); 
     };
 
     const handleCreate = async () => {
       // navigate('/chat'); 
-      const dispatchResult = await dispatch(create(chatName));
+      let initialSettings = {
+        chatName,
+        topic,
+        prompt,
+        aiName,
+        time,
+        numberParticipants
+      };
+      const dispatchResult = await dispatch(create(initialSettings));
       if (create.fulfilled.match(dispatchResult)) {
         setOpenWindow(false)
         setShowAccess(true)
         setChatName(null)
         setTopic(null)
-
       }
     }
 
@@ -152,16 +181,37 @@ function ChatList() {
                     <input className={styles.in}  type={"text"} required placeholder='Prompt' onChange={handlePrompt} value={prompt}></input>
                   </div>
                   <div className={styles.combine}>
+                    <div className={styles.textBold}>AI name</div>
+                    <input className={styles.in}  type={"text"} required placeholder='Prompt' onChange={handleAiName} value={aiName}></input>
+                  </div>
+                  <div className={styles.combine}>
                   <div className={styles.textBold}>Chat Session Time (mm/ss, 24h):</div>
-                    <input
-                    type="time"
-                    value={time}
-                    onChange={handleTime}
-                    />
+                  <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                  <input
+                  type="number"
+                  value={minutes}
+                  onChange={handleMinutesChange}
+                  min="0"
+                  max="59"
+                  placeholder="MM"
+                  style={{ width: '50px', textAlign: 'center' }}
+                  />
+                  :
+                  <input
+                  type="number"
+                  value={seconds}
+                  onChange={handleSecondsChange}
+                  min="0"
+                  max="59"
+                  placeholder="SS"
+                  style={{ width: '50px', textAlign: 'center' }}
+                  />
+                </div>
+                <p>Formatted Time: {formattedTime}</p>
                   </div>
                   <div className={styles.combine}>
                     <div className={styles.textBold}>Number of participants</div>
-                    <input className={styles.in}  type={"text"} required placeholder="Only numbers" onChange={handleNumber} value={number}></input>
+                    <input className={styles.in}  type={"text"} required placeholder="Only numbers" onChange={handleNumber} value={numberParticipants}></input>
                   </div>
               </div>
               <div className={styles.btnContainer}> 
