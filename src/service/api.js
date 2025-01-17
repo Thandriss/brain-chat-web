@@ -90,3 +90,45 @@ export async function getChat(data) {
   }
   return res.data;
 }
+export async function closeChat(data) {
+  console.log(JSON.stringify(data))
+  const res = await axiosWithAuth.post("/api/groups/closeChat", JSON.stringify(data));
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}
+
+export async function openChat(data) {
+  console.log(JSON.stringify(data))
+  const res = await axiosWithAuth.post("/api/groups/openChat", JSON.stringify(data));
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}
+
+export async function getTime(data) {
+  console.log(JSON.stringify(data))
+  const res = await axiosWithAuth.post("/api/groups/getTime", JSON.stringify(data));
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}
+
+export async function changePrompt(data) {
+  console.log(JSON.stringify(data))
+  const res = await axiosWithAuth.post("/api/ai/changePrompt", JSON.stringify(data));
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}
+export async function getPrompt(data) {
+  const res = await axiosWithAuth.get("/api/ai/getPrompt/"+ data);
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}

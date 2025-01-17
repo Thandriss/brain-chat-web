@@ -219,3 +219,66 @@ section .wave {
     color: #888;
     z-index: 1;
   }
+
+@media (max-width: 768px) {
+    .container {
+        width: 90%; 
+        padding: 10%;
+    }
+
+    .header .text {
+        font-size: 32px; 
+    }
+
+    .linkSignUp {
+        font-size: 16px;  
+        padding: 10px;
+    }
+
+    .inputs {
+        padding: 0;
+    }
+
+    .submit_container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .submitBtn {
+        width: 70%;
+        font-size: 16px;
+    }
+
+    .in {
+        width: 80%;
+        font-size: 16px;
+        /* padding: 12px; */
+    }
+
+    .iconCont {
+        right: 10px;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .container {
+        width: 80%;
+        /* padding: 15%; */
+    }
+
+    .text {
+        font-size: 28px;
+    }
+
+    .submitBtn {
+        font-size: 20px;
+        width: 80%;
+    }
+
+    .wave {
+        height: 50px;
+    }
+}

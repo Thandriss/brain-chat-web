@@ -6,11 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* margin: auto;
-    margin-top: 20px; */
     position: relative;
-    /* width: 100vw; */
-    /* height: 100%; */
     backdrop-filter: blur(30px);
     background: transparent;
     box-shadow: 0 0.5px 0 1px rgba(255, 255, 255, 0.23) inset, 0 1px 0 0 rgba(255, 255, 255, 0.66) inset, 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -20,14 +16,117 @@
     flex-direction: column;
 }
 .message_cont {
-    /* margin-top: 10vh; */
-    /* width: 75vw; */
-    height: 78vh;
-    /* margin-left: 5vh; */
+    height: 75vh;
     border-radius: 6px;
     padding: 2vh;
     overflow:auto;
     overflow-x: hidden;
+}
+
+.modalWin {
+    flex-direction: column;
+    background-color: #D3D5D4;
+    color: black;
+    width: 50%;
+    height: 50%;
+    z-index: 1;
+    display: flex;
+    position: fixed;
+    border-radius: 50px;
+    padding: 20px;
+    margin-top: 50px;
+}
+.auth_input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    flex-direction: column;
+}
+
+.btnCancel {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer;
+    /* position: fixed; */
+    background: #d34e11;
+    bottom: 3%;
+    overflow: hidden;
+    z-index: 3;
+    color: #D3D5D4;
+    font-size: 20px;
+    height: 40px;
+    padding: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 25px;
+}
+
+.btnCreate{
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer;
+    /* position: fixed; */
+    background: #16324F;
+    bottom: 3%;
+    overflow: hidden;
+    z-index: 3;
+    color: #D3D5D4;
+    font-size: 20px;
+    height: 40px;
+    padding: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 25px;
+}
+.btnCreate:hover {
+    background: #13293D;
+}
+.btnCancel:hover {
+    background: #97380d;
+}
+.btnContainer {
+    display: flex;
+    /* position: relative; */
+    justify-content: center; 
+    align-items: center;
+    /* top: 80%; */
+    gap: 20px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin-bottom: 10px;
+}
+
+.in {
+    height: 50px;
+    width: 72%;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    border: none;
+    outline: none;
+    background-color: rgb(241, 239, 239);
+    border-radius: 6px;
+    color: grey;
+    padding-right: 40px;
+    padding-left: 10px;
+    font-size: 19px;
+    margin-top: 5px; 
+    margin-left: 10px;
+}
+.btnContainerCJ {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    flex-direction: row;
+    position: fixed;
+    bottom: 3%;
+    z-index: 3;
 }
 .mess_box {
     background-color: rgb(241, 239, 239);
@@ -45,18 +144,11 @@
     width: 100%;
     background: transparent;
     border: none;
-    /* display: flex;
-    align-items: center;
-    justify-content: center; */
     background-color: rgb(241, 239, 239);
     border-radius: 6px;
     color: grey;
     padding-left: 6px;
     font-size: 19px;
-    /* position: fixed;
-    left: 3%;
-    right: 3%;
-    bottom: 3%; */
 }
 .name {
     font-size: 20px;

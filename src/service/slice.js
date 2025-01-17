@@ -33,6 +33,16 @@ export const send = createAsyncThunk("send", async (data) => api.send(data));
 
 export const getChat = createAsyncThunk("getChat", async (data) => api.getChat(data));
 
+export const closeChat = createAsyncThunk("closeChat", async (data) => api.closeChat(data));
+
+export const openChat = createAsyncThunk("openChat", async (data) => api.openChat(data));
+
+export const getTime = createAsyncThunk("getTime", async (data) => api.getTime(data));
+
+export const getPrompt = createAsyncThunk("getPrompt", async (data) => api.getPrompt(data));
+
+export const changePrompt = createAsyncThunk("changePrompt", async (data) => api.changePrompt(data));
+
 export const getBindings = createAsyncThunk("getBindings", async (data) => api.getBindings(data));
 
 export const getAllChats = createAsyncThunk("getAllChats", async () => api.getAllChats());
@@ -98,7 +108,6 @@ const slice = createSlice({
           state.errorMessage = "";
         })
         .addCase(bind.fulfilled, (state, action) => {
-          // console.log("bind");
           state.isLoading = false;
         })
         .addCase(bind.pending, (state) => {
@@ -116,6 +125,49 @@ const slice = createSlice({
           state.isLoading = true;
         })
         .addCase(getChat.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(closeChat.fulfilled, (state, action) => {
+          state.currentChat = action.payload;
+          state.isLoading = false;
+        })
+        .addCase(closeChat.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(closeChat.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(openChat.fulfilled, (state, action) => {
+          state.currentChat = action.payload;
+          state.isLoading = false;
+        })
+        .addCase(openChat.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(openChat.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(getTime.fulfilled, (state, action) => {
+          // state.currentChat = action.payload;
+          state.isLoading = false;
+        })
+        .addCase(getTime.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(getTime.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(getPrompt.fulfilled, (state, action) => {
+          state.isLoading = false;
+        })
+        .addCase(getPrompt.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(getPrompt.rejected, (state) => {
           state.error = true;
           state.isLoading = false;
         })

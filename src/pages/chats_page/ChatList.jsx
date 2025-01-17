@@ -9,6 +9,7 @@ import { bind, create, getAllChats, join, getChat } from '../../service/slice';
 
 function ChatList() {
     const modes = [ "brainstorming", "6 thinking hat", "SCAMPER", "none" ];
+    const modesAnonymity = [ "yes", "no"];
     const list = useSelector(selectUserChats);
     const dispatch = useDispatch();
     const [openWindow, setOpenWindow] = useState(false);
@@ -19,13 +20,15 @@ function ChatList() {
     const navigate = useNavigate();
     const [joinWindow, setJoinWindow] = useState(false);
     const [accessCodeIn, setAccessCodeIn] = useState(null);
-    const [selectedValues, setSelectedValues] = useState("none");
+    const [mode, setSelectedValues] = useState("none");
     const [prompt, setPrompt] = useState("");
     const [time, setTime] = useState('');
     const [numberParticipants, setNumber] = useState('');
     const [aiName, setAiName] = useState("");
     const [minutes, setMinutes] = useState('00');
     const [seconds, setSeconds] = useState('00');
+    const [anonymitySt, setAnon] = useState("no");
+    const [anonymity, setAnonFinal] = useState("no");
 
     const handleMinutesChange = (e) => {
       const value = Math.max(0, Math.min(59, parseInt(e.target.value) || 0)); 
@@ -45,6 +48,16 @@ function ChatList() {
 
     const handleCheckboxChange = (value) => {
       setSelectedValues(value);
+    };
+
+    const handleCheckboxChangeAnonymity = (value) => {
+      if (value === "yes") {
+        setAnon(value)
+        setAnonFinal(true);
+      } else {
+        setAnon(value)
+        setAnonFinal(false);
+      }
     };
 
     const handleNumber = (e) => {
@@ -111,14 +124,15 @@ function ChatList() {
     };
 
     const handleCreate = async () => {
-      // navigate('/chat'); 
       let initialSettings = {
         chatName,
         topic,
         prompt,
         aiName,
         time,
-        numberParticipants
+        numberParticipants,
+        mode,
+        anonymity
       };
       const dispatchResult = await dispatch(create(initialSettings));
       if (create.fulfilled.match(dispatchResult)) {
@@ -168,7 +182,25 @@ function ChatList() {
                           type="radio"
                           value={option}
                           onChange={() => handleCheckboxChange(option)}
-                          checked={selectedValues === option}
+                          checked={mode === option}
+                          />
+                          {option}
+                        </label>
+                      )
+                    })}
+                    </div>
+                  </div>
+                  <div className={styles.combine}>
+                    <div className={styles.textBold}>Anonymity</div>
+                    <div className={styles.options}>
+                    {modesAnonymity.map((option, index) => {
+                      return (
+                        <label key={index}>
+                          <input
+                          type="radio"
+                          value={option}
+                          onChange={() => handleCheckboxChangeAnonymity(option)}
+                          checked={anonymitySt === option}
                           />
                           {option}
                         </label>

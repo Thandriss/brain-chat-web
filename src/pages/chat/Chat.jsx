@@ -6,8 +6,10 @@ import SendIcon from '@mui/icons-material/Send';
 import { useLocation } from 'react-router-dom';
 import { selectCurrentMessages, selectUser, selectCurrentChat } from "../../service/selectors";
 import { useDispatch, useSelector } from "react-redux";
-import { getChat, getMessages, getBindings } from '../../service/slice';
+import { getChat, getMessages, getBindings, closeChat, openChat, getTime, getPrompt, changePrompt } from '../../service/slice';
 import Timer from '../../components/timer/Timer';
+import { Button } from '@mui/material';
+// import { closeChat } from '../../service/api';
 
 function Chat() {
   const [messages, setMess] = useState([]);
@@ -15,15 +17,18 @@ function Chat() {
   const [accessCode, setAccessCode] = useState(null);
   const [chatName, setChatName] = useState(null);
   const [bindingsCount, setBindingsCount] = useState(null);
-  const targetBindings = 5;
+  const targetBindings = 1;
   const user = useSelector(selectUser);
   const chat = useSelector(selectCurrentChat);
+  const [time, setTime] = useState("");
   const dispatch = useDispatch();
   const [isTimerExpired, setIsTimerExpired] = useState(false);
   const [isTracking, setIsTracking] = useState(true);
   console.log(chat)
   const location = useLocation()
   const [startTimer, setStartTimer] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
 
   console.log(user)
 
@@ -71,7 +76,7 @@ function Chat() {
     stompClient.onConnect = () => {
         console.log("Connected to WebSocket");
 
-        stompClient.subscribe("/queue/user_1_group_" + part1, (message) => {
+        stompClient.subscribe("/queue/user_"+user.id+"_group_" + part1, (message) => {
             console.log("Full message received:", message);
             console.log("Message body:", message.body);
             try {
@@ -101,6 +106,34 @@ function Chat() {
     };
   }, []);
 
+  const handleOpen = async () => {
+    setOpen(!open)
+    console.log("AI ID " + chat.aiId)
+    const dispatchResult = await dispatch(getPrompt(chat.aiId))
+    if (getPrompt.fulfilled.match(dispatchResult)) {
+      setText(dispatchResult.payload)
+    }
+  }
+
+  const handleChange = async () => {
+    let aiId = chat.aiId;
+    let initialSettings = {
+      text,
+      aiId
+    };
+    const dispatchResult = await dispatch(changePrompt(initialSettings));
+
+    if (changePrompt.fulfilled.match(dispatchResult)) {
+      setText(dispatchResult.payload)
+    }
+    setOpen(!open)
+  }
+
+  const handleChangeText = (e) => {
+    const newText = e.target.value;
+    setText(newText)
+  }
+
   const handleGettingMessages = async () => {
     const dispatchResult = await dispatch(getMessages(accessCode));
     if (getMessages.fulfilled.match(dispatchResult)) {
@@ -112,7 +145,6 @@ function Chat() {
     if (accessCode != null) {
       handleGettingMessages();
     }
-    
   }, [accessCode])
 
   const sendMessage = () => {
@@ -132,20 +164,62 @@ function Chat() {
       console.log(mess);
   };
 
+  const handleCloseChat = async () => {
+    let chatId = chat.id;
+    let initialSettings = {
+      chatId
+    };
+    let result = await dispatch(closeChat(initialSettings))
+    console.log(result)
+  };
+  
 
+  useEffect(()=> {
+    if (isTimerExpired) {
+      console.log("Time out")
+      handleCloseChat();
+    }
+  }, [isTimerExpired])
+
+  useEffect(()=> {
+    if (open) {
+
+    }
+  }, [open])
 
   useEffect(() => {
     if (isTracking) {
       const interval = setInterval(async () => {
         try {
+          console.log(accessCode)
           const dispatchResult = await dispatch(getBindings(accessCode));
+          console.log(dispatchResult)
           if (getBindings.fulfilled.match(dispatchResult)) {
-            const data = await dispatchResult.json();
-            setBindingsCount(data.bindingsNumber);
-            if (data.bindingsNumber === targetBindings) {
+            const data = dispatchResult;
+            console.log(data.bindingsNumber)
+            console.log(dispatchResult.payload.bindingsNumber)
+            setBindingsCount(dispatchResult.payload.bindingsNumber);
+            if (dispatchResult.payload.bindingsNumber === targetBindings) {
               clearInterval(interval);
               console.log("Target bindings reached!");
-              setStartTimer(true)
+              let chatId = chat.id;
+              let initialSettings = {
+                chatId
+              };
+              const newChat = await dispatch(openChat(initialSettings))
+              console.log(newChat);
+              if (newChat.payload.status === "ACTIVE") {
+                let chatId = newChat.payload.id;
+                let initialSettings = {
+                  chatId
+                };
+                const result = await dispatch(getTime(initialSettings));
+                if (getTime.fulfilled.match(result)) {
+                  console.log(result.payload.time)
+                  setTime(result.payload.time)
+                  setStartTimer(true)
+                }
+              }
               setIsTracking(false)
             }
           }
@@ -156,27 +230,41 @@ function Chat() {
 
       return () => clearInterval(interval); 
     }
-  }, [isTracking]);
+  }, [accessCode, dispatch, isTracking]);
 
 
   return (
     <div>
-      {chat? <Timer time={chat.time} onExpire={handleExpire} startTimer={startTimer}/> : <Timer time = {"00:00"} onExpire={handleExpire} startTimer={startTimer}/>}
+      {chat? <Timer time={time} onExpire={handleExpire} startTimer={startTimer}/> : <Timer time = {"00:00"} onExpire={handleExpire} startTimer={startTimer}/>}
+      {user.id === chat.ownerId && <button onClick={handleOpen}>Edit AI</button>}
         <div className={styles.main_cont}>
             <h2 className={styles.chatHeader}>{chatName}</h2>
             <div className={styles.message_cont}>
                 {messages.map((mess)=> 
                 <div className={styles.mess_box}>
-                  <b className={styles.name}>{mess.name}</b>
+                  {!chat.anonymity && <b className={styles.name}>{mess.name}</b>}
                   <p>{mess.text}</p>
                 </div>)}
+            </div> 
+            {open && 
+            <div className={styles.modalWin}>
+              <h1>Edit AI</h1>
+              <div className={styles.auth_input}>
+                  <input className={styles.in}  type={"text"} required placeholder='Prompt' onChange={handleChangeText} value={text}></input>
+              </div>
+              <div className={styles.btnContainer}> 
+                <div className={styles.btnCancel} onClick={handleOpen}>Close</div>
+                <div className={styles.btnCreate} onClick={handleChange}>Change</div>
+              </div>
             </div>
-            
+            }
         </div>
-        <div className={styles.mess_input}>
+        
+        { !isTimerExpired && chat.status === "ACTIVE" && <div className={styles.mess_input}>
             <input className={styles.in_mess} id='message' placeholder='Message' onKeyDown={(event) => handleKeyPress(event)}></input>
             <SendIcon onClick={() => sendMessage()}/>
         </div>
+        }
     </div>
   )
 }

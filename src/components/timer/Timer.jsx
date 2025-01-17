@@ -46,7 +46,7 @@ function Timer( { time, onExpire, startTimer } ) {
         <span>{days}</span>:<span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
       </div>
       <p>{isRunning ? 'Running' : 'Not running'}</p>
-      <button onClick={start}>Start</button>
+      {/* <button onClick={start}>Start</button>
       <button onClick={pause}>Pause</button>
       <button onClick={resume}>Resume</button>
       <button onClick={() => {
@@ -54,7 +54,7 @@ function Timer( { time, onExpire, startTimer } ) {
         let date = new Date();
         date.setSeconds(date.getSeconds() + setTotalSeconds)
         restart(date)
-      }}>Restart</button>
+      }}>Restart</button> */}
     </div>
   );
 }
