@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { bind, create, getAllChats, join, getChat } from '../../service/slice';
 
 function ChatList() {
-    const modes = [ "brainstorming", "6 thinking hat", "SCAMPER", "none" ];
+    const modes = [ "brainstorming", "6 thinking hats", "SCAMPER", "none" ];
     const modesAnonymity = [ "yes", "no"];
     const list = useSelector(selectUserChats);
     const dispatch = useDispatch();
@@ -214,7 +214,7 @@ function ChatList() {
                   </div>
                   <div className={styles.combine}>
                     <div className={styles.textBold}>AI name</div>
-                    <input className={styles.in}  type={"text"} required placeholder='Prompt' onChange={handleAiName} value={aiName}></input>
+                    <input className={styles.in}  type={"text"} required placeholder='Nick' onChange={handleAiName} value={aiName}></input>
                   </div>
                   <div className={styles.combine}>
                   <div className={styles.textBold}>Chat Session Time (mm/ss, 24h):</div>
@@ -243,7 +243,7 @@ function ChatList() {
                   </div>
                   <div className={styles.combine}>
                     <div className={styles.textBold}>Number of participants</div>
-                    <input className={styles.in}  type={"text"} required placeholder="Only numbers" onChange={handleNumber} value={numberParticipants}></input>
+                    <input className={styles.in}  type={"text"} required placeholder="Recommended size 2-6 people" onChange={handleNumber} value={numberParticipants}></input>
                   </div>
               </div>
               <div className={styles.btnContainer}> 

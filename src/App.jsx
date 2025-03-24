@@ -9,27 +9,24 @@ import NotFounded from './pages/not_founded/NotFounded';
 import ChatList from './pages/chats_page/ChatList';
 import Layout from './pages/layout/Layout';
 import Chat from './pages/chat/Chat';
+import ResetPassword from './pages/resetPassword/ResetPassword';
+import {useCookies} from 'react-cookie'
 
 function App() {
+  const [cookies, setCookie] = useCookies(['accessToken'])
   return (
     <div className="App">
       <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route path='/list' element={<ChatList/>}></Route>
-            <Route path='/chat/:name' element={<Chat/>}></Route>
+            {cookies['accessToken'] && <Route path='/list' element={<ChatList/>}></Route>}
+            {cookies['accessToken'] && <Route path='/chat/:name' element={<Chat/>}></Route>}
           </Route>
-          <Route index element={<IntroPage/>} />
-          <Route path='/login' element={<LoginPage/>}></Route> 
-          <Route path='/signUp' element={<SignUpPage/>}></Route> 
-          <Route path='/confirm' element={<ConfirmPage/>}></Route> 
-
-          {/* <Route path='/' element={<IntroPage/>}></Route> */}
-        {/* <Route path='/cards' element={<Main/>}></Route>} 
-        <Route path='/profile' element={<Profile/>}></Route> 
-        <Route path='/chats' element={<Chats/>}></Route> 
-        <Route path='/userChat' element={<UsersChat/>}></Route> 
-        <Route path='/' element={<Page/>}></Route> */}
+          {!cookies['accessToken'] && <Route index element={<IntroPage/>}/>} 
+          {!cookies['accessToken'] && <Route path='/login' element={<LoginPage/>}></Route> }
+          {!cookies['accessToken'] && <Route path='/reset' element={<ResetPassword/>}></Route>}
+          {!cookies['accessToken'] && <Route path='/signUp' element={<SignUpPage/>}></Route> }
+          {!cookies['accessToken'] && <Route path='/confirm' element={<ConfirmPage/>}></Route> }
           <Route path="*" element={<NotFounded />} />
         </Routes>
       </Router>

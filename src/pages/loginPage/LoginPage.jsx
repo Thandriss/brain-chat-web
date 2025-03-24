@@ -100,6 +100,12 @@ function LoginPage() {
                     </div>
                     
                 </div>
+                
+            </div>
+            <div>
+              <Link to="/reset" className={styles.linkSignUp} id="signUpLink">
+                  Forget your password?
+              </Link> 
             </div>
             <div className={styles.submit_container}>
 

@@ -17,6 +17,14 @@ export async function login(data) {
     return res.data;
 }
 
+export async function reset(data) {
+  const res = await axiosDefault.post("/api/v1/auth/reset", JSON.stringify(data));
+  if (res.status !== 200) {
+    throw res.data;
+  }
+  return res.data;
+}
+
 export async function confirm(confirm) {
   console.log(confirm)
   const res = await axiosDefault.post("/api/v1/auth/confirm/"+ confirm.code, JSON.stringify(confirm.email));

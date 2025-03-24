@@ -80,9 +80,6 @@ function SignUp() {
           password,
         })
       );
-      // console.log(register.fulfilled.match(dispatchResult))
-      // console.log(dispatchResult)
-      // console.log(register.fulfilled)
       if (register.fulfilled.match(dispatchResult)) {
         await dispatch(
           setUserRegistr({
@@ -96,7 +93,6 @@ function SignUp() {
         setTimeout(() => {
           nav("/confirm");
         }, 3000);
-        // nav("/confirm");
       }
     }
   }

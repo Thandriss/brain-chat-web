@@ -23,6 +23,8 @@ export const register = createAsyncThunk("register", async (data) => api.registe
   
 export const login = createAsyncThunk("login", async (data) => api.login(data));
 
+export const reset = createAsyncThunk("reset", async (data) => api.reset(data));
+
 export const confirm = createAsyncThunk("confirm", async (data) => api.confirm(data));
 
 export const create = createAsyncThunk("create", async (data) => api.create(data));
@@ -232,6 +234,16 @@ const slice = createSlice({
             email: "",
           };
         })
+        .addCase(reset.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(reset.rejected, (state) => {
+          state.error = true;
+          state.isLoading = false;
+        })
+        .addCase(reset.fulfilled, (state, action) => {
+          
+        })
         .addCase(join.fulfilled, (state, action) => {
           state.chats.push(action.payload);
         })
@@ -264,50 +276,7 @@ const slice = createSlice({
           state.isLoading = false;
           state.currentMessages = [];
         })
-        // .addCase(update.rejected, (state, action) => {
-        //   state.errorMessage = action.error.message;
-        //   state.isLoading = false;
-        // })
-        // .addCase(update.pending, (state) => {
-        //   state.isLoading = true;
-        //   state.errorMessage = "";
-        // })
-        // .addCase(update.fulfilled, (state, action) => {
-        //   state.isLoading = false;
-        //   if (action.payload.message) {
-        //     state.errorExistMessage = action.payload.message;
-        //   } else {
-        //     state.user = action.payload;
-        //     state.errorExistMessage = "";
-        //   }
-        // })
-        // .addCase(loadNewAccessToken.rejected, (state) => {
-        //   Cookies.remove("accessToken");
-        //   Cookies.remove("refreshToken");
-        //   state.isAuth = false;
-        // })
-        // .addCase(loadNewAccessToken.pending, (state) => {
-        //   state.isLoading = true;
-        // })
-        // .addCase(loadNewAccessToken.fulfilled, (state, action) => {
-        //   const { accessToken } = action.payload;
-        //   Cookies.set("accessToken", accessToken, { expires: 1 / 12, secure: true, sameSite: "strict" });
-        //   state.isLoading = false;
-        //   state.isAuth = true;
-        // })
-        // .addCase(loadAuthUser.rejected, (state) => {
-        //   Cookies.remove("accessToken");
-        //   Cookies.remove("refreshToken");
-        //   state.isAuth = false;
-        // })
-        // .addCase(loadAuthUser.pending, (state) => {
-        //   state.isLoading = true;
-        // })
-        // .addCase(loadAuthUser.fulfilled, (state, action) => {
-        //   state.user = action.payload;
-        //   state.isLoading = false;
-        //   state.isAuth = true;
-        // });
+        
     },
 });
   
