@@ -29,22 +29,25 @@ function ChatList() {
     const [seconds, setSeconds] = useState('00');
     const [anonymitySt, setAnon] = useState("no");
     const [anonymity, setAnonFinal] = useState("no");
+    const formattedTime = `${minutes}:${seconds}`;
+    // const formattedTime = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
     const handleMinutesChange = (e) => {
-      const value = Math.max(0, Math.min(59, parseInt(e.target.value) || 0)); 
+      const value = Math.max(0, Math.min(59, parseInt(e.target.value))); 
       setMinutes(value.toString().padStart(2, '0')); 
       const formattedTime = `${minutes}:${seconds}`;
       setTime(formattedTime)
+      console.log(formattedTime)
     };
 
     const handleSecondsChange = (e) => {
-      const value = Math.max(0, Math.min(59, parseInt(e.target.value) || 0)); 
+      const value = Math.max(0, Math.min(59, parseInt(e.target.value))); 
       setSeconds(value.toString().padStart(2, '0'));
       const formattedTime = `${minutes}:${seconds}`; 
-      // const formattedTime = `${minutes}:${seconds}`;
       setTime(formattedTime)
+      console.log(time)
     };
-    const formattedTime = `${minutes}:${seconds}`;
+    
 
     const handleCheckboxChange = (value) => {
       setSelectedValues(value);
@@ -142,10 +145,17 @@ function ChatList() {
         setTopic(null)
       }
     }
+    
+    useEffect(()=> {
+      if(formattedTime !== time) {
+        setTime(formattedTime)
+      }
+    }, [formattedTime])
 
     useEffect(() => {
       dispatch(getAllChats())
     }, [dispatch])
+
 
   return (
     <div>
@@ -222,7 +232,7 @@ function ChatList() {
                   <input
                   type="number"
                   value={minutes}
-                  onChange={handleMinutesChange}
+                  onChange={(e) => handleMinutesChange(e)}
                   min="0"
                   max="59"
                   placeholder="MM"
@@ -232,7 +242,7 @@ function ChatList() {
                   <input
                   type="number"
                   value={seconds}
-                  onChange={handleSecondsChange}
+                  onChange={(e) => handleSecondsChange(e)}
                   min="0"
                   max="59"
                   placeholder="SS"

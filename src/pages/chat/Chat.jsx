@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect, useRef, useMemo} from 'react'
 import styles from "./chat.module.css"
 import SockJS from "sockjs-client"
 import { Stomp, Client } from "@stomp/stompjs"
@@ -26,8 +26,10 @@ function Chat() {
   const [startTimer, setStartTimer] = useState(false);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
+  console.log(user)
 
   const chatEndRef = useRef(null);
+  const stompClientRef = useRef(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,7 +44,10 @@ function Chat() {
   const handleKeyPress = async (event) => { 
     if(event.key === 'Enter'){
       let mess = document.getElementById("message").value
-      if (client && client.active) {
+      console.log(user)
+
+      console.log("Client status:", client);
+      if (client && client.connected) {
         client.publish({
           destination: "/app/send",
           body: JSON.stringify({
@@ -51,26 +56,18 @@ function Chat() {
               id: user.id,
               name: user.name,
           }),
-      });
+        });
         document.getElementById("message").value = ""
       }
     }
   }
 
-  const socketUrl = "http://localhost:5555/ws/info";
-  useEffect(()=>{
-    if (chat.mode === "brainstorming") {
-      setMess((prev) => [...prev, { name: "system", text: "A free-flowing idea generation method where everyone shares thoughts without judgment. Quantity over quality—ideas can be crazy, and later refined!" }]);
-    } else if (chat.mode === "SCAMPER") {
-      setMess((prev) => [...prev, { name: "system", text: "SCAMPER is a creative thinking technique that helps improve or innovate ideas by applying seven different approaches. Substitute: Replace a part of the idea with something else. Combine: Merge two or more elements to create something new. Adapt: Modify an existing idea to fit a new need. Modify (or Magnify): Change the size, shape, or features. Put to another use: Find a new way to use the product. Eliminate: Remove unnecessary parts to simplify. Reverse (or Rearrange): Flip or reorder elements to create something fresh. Choose the role and act according to that" }]);
-    } else if (chat.mode === "6 thinking hats") {
-      setMess((prev) => [...prev, { name: "system", text: "A structured approach where each \"hat\" represents a different way of thinking—facts (white), emotions (red), risks (black), benefits (yellow), creativity (green), and process (blue). Helps explore ideas from all angles! Choose the hat and work with that"}]);
-    } else {
-      setMess((prev) => [...prev, { name: "system", text: "The idea generation technique is not defined" }]);
-    }
-  }, []);
+  const socketUrl = `https://collab-chat.com/ws/info`;
+  // const socketUrl = `http://localhost:5555/ws/info`;
+
 
   useEffect(() => {
+
     console.log("Initializing WebSocket connection...");
     let str = location.pathname;
     const parts = str.split('/')[2].split('_');
@@ -78,6 +75,8 @@ function Chat() {
     const part2 = parts[1];
     setAccessCode(part1);
     setChatName(decodeURIComponent(part2));
+
+    if (stompClientRef.current) return;
 
     const stompClient = new Client({
         webSocketFactory: () => new SockJS(socketUrl), 
@@ -87,6 +86,8 @@ function Chat() {
 
     stompClient.onConnect = () => {
         console.log("Connected to WebSocket");
+
+        setStompClient(stompClient);
 
         stompClient.subscribe("/queue/user_"+user.id+"_group_" + part1, (message) => {
             console.log("Full message received:", message);
@@ -108,7 +109,7 @@ function Chat() {
 
     stompClient.activate(); 
 
-    setStompClient(stompClient);
+
 
     return () => {
         if (stompClient.active) {
@@ -116,7 +117,7 @@ function Chat() {
             console.log("Disconnected from WebSocket");
         }
     };
-  }, []);
+  }, [location.pathname, socketUrl, user.id]);
 
   const handleOpen = async () => {
     setOpen(!open)
@@ -161,6 +162,8 @@ function Chat() {
 
   const sendMessage = () => {
     let mess = document.getElementById("message").value
+
+    console.log("Client status:", client);
     if (client && client.active) {
       client.publish({
         destination: "/app/send",
@@ -173,7 +176,6 @@ function Chat() {
     });
       }
       document.getElementById("message").value = ""
-      console.log(mess);
   };
 
   const handleCloseChat = async () => {
@@ -198,6 +200,7 @@ function Chat() {
 
     }
   }, [open])
+
 
   useEffect(() => {
     if (isTracking) {
@@ -244,20 +247,25 @@ function Chat() {
     }
   }, [accessCode, dispatch, isTracking]);
 
+  const renderedMessages = useMemo(() => (
+    messages.map((mess, index) => (
+      <div key={index} className={styles.mess_box}>
+        {!chat.anonymity && <b className={styles.name}>{mess.name}</b>}
+        <p>{mess.text}</p>
+      </div>
+    ))
+  ), [messages, chat.anonymity]);
+
 
   return (
-    <div>
+    <div className={styles.main_body}>
       {chat? <Timer time={time} onExpire={handleExpire} startTimer={startTimer}/> : <Timer time = {"00:00"} onExpire={handleExpire} startTimer={startTimer}/>}
       {user.id === chat.ownerId && <button onClick={handleOpen}>Edit AI</button>}
         <div className={styles.main_cont}>
             <h2 className={styles.chatHeader}>{chatName}</h2>
             <h2 className={styles.chatHeader}>{chat.topic + " " + "Mode: " + chat.mode}</h2>
             <div className={styles.message_cont}>
-                {messages.map((mess)=> 
-                <div className={styles.mess_box}>
-                  {!chat.anonymity && <b className={styles.name}>{mess.name}</b>}
-                  <p>{mess.text}</p>
-                </div>)}
+              {renderedMessages}
                 <div ref={chatEndRef} />
             </div> 
             {open && 

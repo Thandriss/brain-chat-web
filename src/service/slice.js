@@ -23,6 +23,8 @@ export const register = createAsyncThunk("register", async (data) => api.registe
   
 export const login = createAsyncThunk("login", async (data) => api.login(data));
 
+export const getUser = createAsyncThunk("getUser", async (data) => api.getUser(data));
+
 export const reset = createAsyncThunk("reset", async (data) => api.reset(data));
 
 export const confirm = createAsyncThunk("confirm", async (data) => api.confirm(data));
@@ -100,15 +102,37 @@ const slice = createSlice({
           };
         }
       })
-        .addCase(register.rejected, (state, action) => {
-          console.log("Reg")
+        .addCase(getUser.rejected, (state, action) => {
           state.errorMessage = action.error.message;
           state.isLoading = false;
         })
-        .addCase(register.pending, (state) => {
+        .addCase(getUser.pending, (state) => {
           state.isLoading = true;
           state.errorMessage = "";
         })
+        .addCase(getUser.fulfilled, (state, action) => {
+          state.isLoading = false;
+          if (action.payload.message) {
+            state.errorExistMessage = action.payload.message;
+          } else {
+            console.log(action.payload)
+            state.user = action.payload;
+            console.log(state.user)
+            state.errorExistMessage = "";
+            state.userRegistr = {
+              fullName: "",
+              email: "",
+            };
+          }
+        })
+          .addCase(register.rejected, (state, action) => {
+            state.errorMessage = action.error.message;
+            state.isLoading = false;
+          })
+          .addCase(register.pending, (state) => {
+            state.isLoading = true;
+            state.errorMessage = "";
+          })
         .addCase(bind.fulfilled, (state, action) => {
           state.isLoading = false;
         })

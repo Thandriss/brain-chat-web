@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { login} from "../../service/slice";
+import { getUser, login} from "../../service/slice";
 import styles from "./loginPage.module.css";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -48,9 +48,10 @@ function LoginPage() {
       })
     );
     if (login.fulfilled.match(dispatchResult)) {
-      nav("/list");
-      setEmail("");
-      setPassword("");
+      const getUserResult = await dispatch(getUser({ email, password }));
+      if (getUser.fulfilled.match(getUserResult)) {
+        nav("/list");
+      }
     }
   }
 
@@ -111,7 +112,7 @@ function LoginPage() {
 
                 <div className={ `${styles.submitBtn} ${hasChanges ? styles.active : styles.notActive}`} onClick={() => loggin()}>Log in</div>
             </div>
-            <div>{message}</div>
+            <div className={styles.error_mess}>{message}</div>
           </div>
         </div>
           <div className={`${styles.wave} ${styles.wave1}`}></div>

@@ -6,7 +6,7 @@ import moment from "moment";
 async function refreshAccessToken(refreshToken) {
   const res = await axios.post("/api/auth/token", JSON.stringify({ refreshToken }));
   const newAccessToken = res.data.accessToken;
-  Cookies.set("accessToken", newAccessToken, { expires: 1 / 12, secure: true, sameSite: "strict" });
+  Cookies.set("accessToken", newAccessToken, { expires: 1 , secure: true, sameSite: "strict" });
 }
 
 function removeTokens() {

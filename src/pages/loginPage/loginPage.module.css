@@ -219,7 +219,9 @@ section .wave {
     color: #888;
     z-index: 1;
   }
-
+  .error_mess {
+    color: rgb(236, 74, 74);
+  }
 @media (max-width: 768px) {
     .container {
         width: 90%; 

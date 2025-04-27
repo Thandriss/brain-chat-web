@@ -20,8 +20,6 @@ function SignUp() {
     const [stateReg, setStateReg] = useState(null)
     const [passwordShown, setPasswordShown] = useState(false);
     const [passwordRepShown, setPasswordRepShown] = useState(false);
-    console.log(password)
-    console.log(confPassword)
 
     const validatePassword = () => {
 
@@ -43,9 +41,9 @@ function SignUp() {
           setStateReg(false);
         }
 
-        const hasSpecialCharacters = /[@#$%^&+=!]/g.test(password);
+        const hasSpecialCharacters = /[@#$%^&+=!?_]/g.test(password);
         if (!hasSpecialCharacters) {
-          setMessage("Password has no special characters")
+          setMessage("Password has no special characters (@#$%^&+=!?_)")
           setStateReg(false);
         }
         
@@ -116,21 +114,22 @@ function SignUp() {
         const passwordValue = e.target.value;
         setPassword(passwordValue);
         const isValidPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(passwordValue);
-        console.log("here")
-        console.log(isValidPassword)
+        const passwordMismatch = confPassword !== passwordValue;
         setPasswordError(!isValidPassword);
+        if (!passwordMismatch) {
+          setPasswordError(passwordMismatch);
+        }
   };
     
   const handleConfChange = (e) => {
         const confirmValue = e.target.value;
         setConfPassword(confirmValue);
         const passwordMismatch = confirmValue !== password;
-        console.log(passwordMismatch)
         setPasswordError(passwordMismatch);
   };
     
   const handleState = () => {
-        if (passwordError || password === null || password === "") {
+        if (passwordError || password === null || password === "" || password !== confPassword) {
             setMessage("Wrong password format or it mismatches with confirmation password")
             setStateReg(false)
         } else if (emailError || email === null || email === "") {
@@ -157,7 +156,7 @@ function SignUp() {
         if (password != null) {
             validatePassword()
         }
-  }, [password, email, confPassword])
+  }, [password, email, confPassword, name])
 
 
   return (
@@ -204,7 +203,7 @@ function SignUp() {
         <div className={styles.submit_container}>
             <div className={ `${styles.submitBtn} ${stateReg ? styles.active : styles.notActive}`} onClick={handleClick}>Sign Up</div>
         </div>
-        <div>{message}</div>
+        <div className={styles.error_mess}>{message}</div>
       </div>
     </div>
       <div className={`${styles.wave} ${styles.wave1}`}></div>

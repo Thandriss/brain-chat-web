@@ -10,13 +10,13 @@
     backdrop-filter: blur(30px);
     background: transparent;
     box-shadow: 0 0.5px 0 1px rgba(255, 255, 255, 0.23) inset, 0 1px 0 0 rgba(255, 255, 255, 0.66) inset, 0 4px 16px rgba(0, 0, 0, 0.12);
-    padding-bottom:  30px;
+    /* padding-bottom:  30px; */
     border-radius: 6px;
     overflow: hidden;
     flex-direction: column;
 }
 .message_cont {
-    height: 75vh;
+    height: 70vh;
     border-radius: 6px;
     padding: 2vh;
     overflow:auto;
@@ -43,6 +43,10 @@
     width: 100%;
     max-width: 100%;
     flex-direction: column;
+}
+
+.main_body {
+    height: auto;
 }
 
 .btnCancel {
@@ -163,5 +167,72 @@
     bottom: 3%;
 }
 .chatHeader {
-    padding: 10px;
+    /* padding: 10px; */
+}
+
+@media (max-width: 375px) {
+    .message_cont {
+        height: 55vh;
+        border-radius: 6px;
+        padding: 2vh;
+        overflow:auto;
+        overflow-x: hidden;
+    }
+}
+
+@media (max-height: 820px) {
+    .message_cont {
+        height: 60vh;
+        border-radius: 6px;
+        padding: 2vh;
+        overflow:auto;
+        overflow-x: hidden;
+    }
+
+    .mess_box {
+        padding: 12px;
+    }
+
+    .chatHeader {
+        /* padding: 0px; */
+    }
+}
+
+
+@media (max-width: 480px) {
+    .message_cont {
+        height: 55vh;
+        border-radius: 6px;
+        padding: 2vh;
+        overflow:auto;
+        overflow-x: hidden;
+    }
+    .chatHeader {
+        /* padding: 5px; */
+        font-size: 15px;
+    }
+
+    .mess_box {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .message_cont {
+        height: 60vh;
+        border-radius: 6px;
+        padding: 2vh;
+        overflow:auto;
+        overflow-x: hidden;
+    }
+
+    .chatHeader {
+        /* padding: 0px; */
+        font-size: 18px;
+    }
+
+    .mess_box {
+        font-size: 18px;
+        padding: 12px;
+    }
 }
